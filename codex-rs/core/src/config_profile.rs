@@ -1,6 +1,8 @@
 use serde::Deserialize;
+use std::collections::HashMap;
 use std::path::PathBuf;
 
+use crate::config_types::McpServerConfig;
 use crate::protocol::AskForApproval;
 use codex_protocol::config_types::ReasoningEffort;
 use codex_protocol::config_types::ReasoningSummary;
@@ -21,4 +23,5 @@ pub struct ConfigProfile {
     pub model_verbosity: Option<Verbosity>,
     pub chatgpt_base_url: Option<String>,
     pub experimental_instructions_file: Option<PathBuf>,
+    pub mcp_servers: Option<HashMap<String, McpServerConfig>>,
 }
