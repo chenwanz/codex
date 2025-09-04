@@ -362,6 +362,16 @@ args = ["-y", "mcp-server"]
 env = { "API_KEY" = "value" }
 ```
 
+To scope MCP servers to a profile, nest the table under `profiles.<name>`:
+
+```toml
+[profiles.work.mcp_servers.server-name]
+command = "npx"
+args = ["-y", "mcp-server"]
+```
+
+Servers defined in a profile extend or override those at the top level.
+
 ## disable_response_storage
 
 Currently, customers whose accounts are set to use Zero Data Retention (ZDR) must set `disable_response_storage` to `true` so that Codex uses an alternative to the Responses API that works with ZDR:

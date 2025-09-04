@@ -706,6 +706,11 @@ impl Config {
             .or(cfg.tools.as_ref().and_then(|t| t.view_image))
             .unwrap_or(true);
 
+        let mut mcp_servers = cfg.mcp_servers;
+        if let Some(profile_mcp_servers) = config_profile.mcp_servers.clone() {
+            mcp_servers.extend(profile_mcp_servers);
+        }
+
         let model = model
             .or(config_profile.model)
             .or(cfg.model)
@@ -772,7 +777,7 @@ impl Config {
             notify: cfg.notify,
             user_instructions,
             base_instructions,
-            mcp_servers: cfg.mcp_servers,
+            mcp_servers,
             model_providers,
             project_doc_max_bytes: cfg.project_doc_max_bytes.unwrap_or(PROJECT_DOC_MAX_BYTES),
             codex_home,
@@ -1011,6 +1016,40 @@ exclude_slash_tmp = true
             },
             sandbox_workspace_write_cfg.derive_sandbox_policy(sandbox_mode_override)
         );
+    }
+
+    #[test]
+    fn test_profile_mcp_servers_override() -> std::io::Result<()> {
+        let toml = r#"
+[mcp_servers.base]
+command = "base"
+
+[profiles.test.mcp_servers.base]
+command = "override"
+
+[profiles.test.mcp_servers.extra]
+command = "extra"
+"#;
+
+        let cfg: ConfigToml = toml::from_str(toml).expect("TOML deserialization should succeed");
+        let codex_home = TempDir::new().unwrap();
+        let cwd = TempDir::new().unwrap();
+
+        let overrides = ConfigOverrides {
+            config_profile: Some("test".to_string()),
+            cwd: Some(cwd.path().to_path_buf()),
+            ..Default::default()
+        };
+        let config = Config::load_from_base_config_with_overrides(
+            cfg,
+            overrides,
+            codex_home.path().to_path_buf(),
+        )?;
+
+        assert_eq!(config.mcp_servers.len(), 2);
+        assert_eq!(config.mcp_servers.get("base").unwrap().command, "override");
+        assert_eq!(config.mcp_servers.get("extra").unwrap().command, "extra");
+        Ok(())
     }
 
     struct PrecedenceTestFixture {

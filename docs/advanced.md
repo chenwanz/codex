@@ -38,5 +38,15 @@ args = ["-y", "mcp-server"]
 env = { "API_KEY" = "value" }
 ```
 
+To scope MCP servers to a specific profile, nest the table under the profile name:
+
+```toml
+[profiles.work.mcp_servers.server-name]
+command = "npx"
+args = ["-y", "mcp-server"]
+```
+
+Entries inside a profile extend or override the top-level `mcp_servers` map.
+
 > [!TIP]
 > It is somewhat experimental, but the Codex CLI can also be run as an MCP _server_ via `codex mcp`. If you launch it with an MCP client such as `npx @modelcontextprotocol/inspector codex mcp` and send it a `tools/list` request, you will see that there is only one tool, `codex`, that accepts a grab-bag of inputs, including a catch-all `config` map for anything you might want to override. Feel free to play around with it and provide feedback via GitHub issues. 
